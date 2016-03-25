@@ -15,7 +15,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TakeSelectCropActivity"></activity>
+        <activity android:name=".TakeSelectCropActivity" />
+        <activity android:name=".UpdatorActivity"></activity>
     </application>
 
 </manifest>

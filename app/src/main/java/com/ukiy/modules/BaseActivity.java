@@ -6,7 +6,7 @@ import android.view.View;
 /**
  * Created by UKIY on 2016/3/23.
  */
-public class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity implements View.OnClickListener{
     public <T extends View> T $(int id) {
         View ret = findViewById(id);
         return (T) ret;

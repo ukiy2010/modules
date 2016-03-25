@@ -8,7 +8,7 @@ import android.widget.ImageView;
 
 import com.ukiy.takeselectcrop.TakeSelectCrop;
 
-public class TakeSelectCropActivity extends BaseActivity implements View.OnClickListener{
+public class TakeSelectCropActivity extends BaseActivity {
     ImageView iv;
     TakeSelectCrop takeSelectCrop;
 
