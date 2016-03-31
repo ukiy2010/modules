@@ -27,9 +27,9 @@ public class TakeSelectCrop {
     private final String CROP_FILENAME = "crop.jpg";
     private final String RESIZE_FILENAME = "resize.jpg";
 
-    private Uri originUri;
-    private Uri cropUri;
-    private Uri resizeUri;
+    private Uri originUri;//照相的图片或者选取的图片保存地址
+    private Uri cropUri;//剪裁的图片保存地址
+    private Uri resizeUri;//缩放后图片的保存地址
 
     private Activity activity;
     private int aspectX = 0;
@@ -85,6 +85,34 @@ public class TakeSelectCrop {
     public TakeSelectCrop setCallback(Callback callback) {
         this.callback = callback;
         return this;
+    }
+
+    public TakeSelectCrop setResizeUri(Uri resizeUri) {
+        this.resizeUri = resizeUri;
+        return this;
+    }
+
+    public TakeSelectCrop setOriginUri(Uri originUri) {
+        this.originUri = originUri;
+        return this;
+    }
+
+    public TakeSelectCrop setCropUri(Uri cropUri) {
+        this.cropUri = cropUri;
+        return this;
+    }
+
+    public Uri getResizeUri() {
+        return resizeUri;
+    }
+
+
+    public Uri getOriginUri() {
+        return originUri;
+    }
+
+    public Uri getCropUri() {
+        return cropUri;
     }
 
     public void takePhoto() {
@@ -207,7 +235,7 @@ public class TakeSelectCrop {
         int sh = h / maxHeight;
         opt.inJustDecodeBounds = false;
         opt.inSampleSize = Math.max(Math.max(sw, sh), 1);
-        return BitmapFactory.decodeFile(in.getPath(), opt);
+        return Bitmap.createScaledBitmap(BitmapFactory.decodeFile(in.getPath(), opt), maxWidth, maxHeight, true);
     }
 
     private Uri bitmapToFile(Bitmap bm, Uri out) {

@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.util.Log;
 
 import java.io.File;
@@ -13,34 +16,51 @@ import java.io.File;
  */
 public class Updator {
     private static final String TAG = "Updator";
-    private static String url;
-    private static String cur_version;
-    private static boolean isInit = false;
+    private static volatile Updator singleton;
+    private String url;
+    private String curVersion;
+    private HandlerThread handlerThread = new HandlerThread(TAG);
+    private Handler requestHandler = new Handler(handlerThread.getLooper());
+    private Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    public static void init(String cur_version, String url) {
-        Updator.url = url;
-        Updator.cur_version = cur_version;
-        isInit = true;
+    private Updator(String curVersion, String url) {
+        this.url = url;
+        this.curVersion = curVersion;
     }
 
-    public static String getUrl(){
-        return Updator.url;
+    public static void init(String curVersion, String url) {
+        if (singleton !=null){
+            throw new RuntimeException("You can init Updator only once!");
+        }
+        if (singleton == null) {
+            synchronized (Updator.class) {
+                if (singleton == null)
+                    singleton = new Updator(curVersion, url);
+            }
+        }
     }
-    public static String getCur_version() {
-        return Updator.cur_version;
+
+    private static void checkInit() {
+        if (singleton == null) {
+            throw new RuntimeException("Please init Updator before you use it!");
+        }
+    }
+
+    public static String getUrl() {
+        return singleton.url;
+    }
+
+    public static String getCurVersion() {
+        return singleton.curVersion;
     }
 
     public static void check(Context context, long period, CheckCallback checkCallback) {
-        if (!isInit) {
-            throw new RuntimeException("Updator is not yet init!");
-        }
+        checkInit();
         UpdatorService.check(context, period, checkCallback);
     }
 
     public static void download(Context context, String url, DownloadCallback downloadCallback) {
-        if (!isInit) {
-            throw new RuntimeException("Updator is not yet init!");
-        }
+        checkInit();
         UpdatorService.download(context, url, downloadCallback);
     }
 
@@ -73,30 +93,9 @@ public class Updator {
     }
 
     public static void start(Context context) {
-        if (!isInit) {
+        if (!hasInit) {
             throw new RuntimeException("Updator is not yet init!");
         }
-        check(context, 0, new CheckCallback() {
-
-            @Override
-            public void onOptUpdate(Context context, UpdateInfo updateInfo, String cur_version) {
-
-            }
-
-            @Override
-            public void onMustUpdate(Context context, UpdateInfo updateInfo, String cur_version) {
-
-            }
-
-            @Override
-            public void onAlreadyNewest(Context context, UpdateInfo updateInfo, String cur_version) {
-
-            }
-
-            @Override
-            public void onFail(Context context) {
-
-            }
-        });
+        check(context, 0, );
     }
 }

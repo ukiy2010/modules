@@ -1,5 +1,6 @@
 package com.ukiy.updator;
 
+import android.app.Activity;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,6 +11,9 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.ViewUtils;
+import android.util.TimeUtils;
+import android.view.GestureDetector;
 
 /**
  * Created by UKIY on 2016/3/25.
@@ -58,8 +62,9 @@ public class UpdatorService extends Service {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 UpdatorService updatorService = ((UpdatorBinder) service).getService();
-                P.downoadFile(false,url,,downloadCallback,);
+                P.downoadFile(false, url, , downloadCallback, );
                 context.unbindService(this);
+                
             }
 
             @Override
