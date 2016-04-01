@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 
 import java.io.File;
@@ -16,12 +17,66 @@ import java.io.File;
  */
 public class Updator {
     private static final String TAG = "Updator";
+    private static final int WHAT_CHECK = 1 << 0;
+    private static final int WHAT_DOWNLOAD = 1 << 1;
+    private static final int WHAT_IDLE = 1 << 2;
     private static volatile Updator singleton;
     private String url;
     private String curVersion;
+
     private HandlerThread handlerThread = new HandlerThread(TAG);
-    private Handler requestHandler = new Handler(handlerThread.getLooper());
-    private Handler mainHandler = new Handler(Looper.getMainLooper());
+    private Handler requestHandler = new Handler(handlerThread.getLooper()) {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case WHAT_CHECK:
+                    if (status == Status.IDLE) {
+                        status = Status.CHECKING;
+                        //todo doing check
+                        P.getUpdataInfo();
+                    }
+                    break;
+                case WHAT_DOWNLOAD:
+                    if (status == Status.IDLE) {
+                        status = Status.DOWNLOADING;
+                        //todo doing download
+                    }
+                    break;
+                case WHAT_IDLE:
+                    status = Status.IDLE;
+                    break;
+                default:
+                    throw new RuntimeException("Unknown status");
+            }
+        }
+    };
+    private Handler mainHandler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case WHAT_CHECK:
+                    if (status == Status.IDLE) {
+                        status = Status.CHECKING;
+                    }
+                    break;
+                case WHAT_DOWNLOAD:
+                    if (status == Status.IDLE) {
+                        status = Status.DOWNLOADING;
+                    }
+                    break;
+                case WHAT_IDLE:
+                    status = Status.IDLE;
+                    break;
+                default:
+                    throw new RuntimeException("Unknown status");
+            }
+        }
+    };
+    private Status status = Status.IDLE;
+
+    enum Status {
+        IDLE, CHECKING, DOWNLOADING
+    }
 
     private Updator(String curVersion, String url) {
         this.url = url;
@@ -29,7 +84,7 @@ public class Updator {
     }
 
     public static void init(String curVersion, String url) {
-        if (singleton !=null){
+        if (singleton != null) {
             throw new RuntimeException("You can init Updator only once!");
         }
         if (singleton == null) {
@@ -56,12 +111,15 @@ public class Updator {
 
     public static void check(Context context, long period, CheckCallback checkCallback) {
         checkInit();
-        UpdatorService.check(context, period, checkCallback);
+//        UpdatorService.check(context, period, checkCallback);
+//        singleton.requestHandler.post
+        singleton.dispatch(WHAT_CHECK);
     }
 
     public static void download(Context context, String url, DownloadCallback downloadCallback) {
         checkInit();
-        UpdatorService.download(context, url, downloadCallback);
+//        UpdatorService.download(context, url, downloadCallback);
+        singleton.dispatch(WHAT_DOWNLOAD);
     }
 
     public static void install(Context context) {
@@ -93,9 +151,11 @@ public class Updator {
     }
 
     public static void start(Context context) {
-        if (!hasInit) {
-            throw new RuntimeException("Updator is not yet init!");
-        }
-        check(context, 0, );
+
+    }
+
+    private void dispatch(int what) {
+        Message message = requestHandler.obtainMessage(what).setData();
+        message.sendToTarget();
     }
 }
