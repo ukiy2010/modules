@@ -1,5 +1,6 @@
 package com.ukiy.updator;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -7,7 +8,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
 
 import java.io.File;
@@ -17,80 +17,38 @@ import java.io.File;
  */
 public class Updator {
     private static final String TAG = "Updator";
-    private static final int WHAT_CHECK = 1 << 0;
-    private static final int WHAT_DOWNLOAD = 1 << 1;
-    private static final int WHAT_IDLE = 1 << 2;
     private static volatile Updator singleton;
     private String url;
     private String curVersion;
 
-    private HandlerThread handlerThread = new HandlerThread(TAG);
-    private Handler requestHandler = new Handler(handlerThread.getLooper()) {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case WHAT_CHECK:
-                    if (status == Status.IDLE) {
-                        status = Status.CHECKING;
-                        //todo doing check
-                        P.getUpdataInfo();
-                    }
-                    break;
-                case WHAT_DOWNLOAD:
-                    if (status == Status.IDLE) {
-                        status = Status.DOWNLOADING;
-                        //todo doing download
-                    }
-                    break;
-                case WHAT_IDLE:
-                    status = Status.IDLE;
-                    break;
-                default:
-                    throw new RuntimeException("Unknown status");
-            }
-        }
-    };
-    private Handler mainHandler = new Handler(Looper.getMainLooper()){
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case WHAT_CHECK:
-                    if (status == Status.IDLE) {
-                        status = Status.CHECKING;
-                    }
-                    break;
-                case WHAT_DOWNLOAD:
-                    if (status == Status.IDLE) {
-                        status = Status.DOWNLOADING;
-                    }
-                    break;
-                case WHAT_IDLE:
-                    status = Status.IDLE;
-                    break;
-                default:
-                    throw new RuntimeException("Unknown status");
-            }
-        }
-    };
-    private Status status = Status.IDLE;
+    private Context mContext;
+    private HandlerThread subThread;
+    private Handler subTheadHandler;
+    private Handler mainHandler;
 
-    enum Status {
-        IDLE, CHECKING, DOWNLOADING
-    }
+    private boolean isBusy = false;
 
-    private Updator(String curVersion, String url) {
+    private Updator(Context context, String curVersion, String url) {
         this.url = url;
         this.curVersion = curVersion;
+        this.mContext = context;
+        subThread = new HandlerThread(TAG);
+        subThread.start();
+        subTheadHandler = new Handler(subThread.getLooper());
+        mainHandler = new Handler(Looper.getMainLooper());
     }
 
-    public static void init(String curVersion, String url) {
+    public static void init(Context context, String curVersion, String url) {
         if (singleton != null) {
             throw new RuntimeException("You can init Updator only once!");
+        }
+        if (!(context instanceof Application)) {
+            throw new RuntimeException("context must be application!");
         }
         if (singleton == null) {
             synchronized (Updator.class) {
                 if (singleton == null)
-                    singleton = new Updator(curVersion, url);
+                    singleton = new Updator(context, curVersion, url);
             }
         }
     }
@@ -109,28 +67,50 @@ public class Updator {
         return singleton.curVersion;
     }
 
-    public static void check(Context context, long period, CheckCallback checkCallback) {
+    public static void check(final int every_N_minutes, CheckCallback checkCallback) {
         checkInit();
-//        UpdatorService.check(context, period, checkCallback);
-//        singleton.requestHandler.post
-        singleton.dispatch(WHAT_CHECK);
+        if (!singleton.isBusy) {
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+
+                    if (every_N_minutes > 0)
+                        singleton.subTheadHandler.postDelayed(this, every_N_minutes*60*1000);
+                }
+            };
+            singleton.subTheadHandler.post(runnable);
+        }
     }
 
-    public static void download(Context context, String url, DownloadCallback downloadCallback) {
+    public static void download(String url, DownloadCallback downloadCallback) {
         checkInit();
-//        UpdatorService.download(context, url, downloadCallback);
-        singleton.dispatch(WHAT_DOWNLOAD);
+        if (!singleton.isBusy) {
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+
+                }
+            };
+            singleton.subTheadHandler.post(runnable);
+        }
     }
 
-    public static void install(Context context) {
-        final File f = getUpdatePath(context);
+    public static void install() {
+        checkInit();
+        final File f = getUpdatePath(singleton.mContext);
         if (f == null) return;
         if (!f.exists()) return;
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.fromFile(f),
-                "application/vnd.android.package-archive");
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(Uri.fromFile(f),
+                        "application/vnd.android.package-archive");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                singleton.mContext.startActivity(intent);
+            }
+        };
+        singleton.mainHandler.post(runnable);
     }
 
     public static File getUpdatePath(Context context) {
@@ -152,10 +132,5 @@ public class Updator {
 
     public static void start(Context context) {
 
-    }
-
-    private void dispatch(int what) {
-        Message message = requestHandler.obtainMessage(what).setData();
-        message.sendToTarget();
     }
 }
