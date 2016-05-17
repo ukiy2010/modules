@@ -1,7 +1,5 @@
 package com.ukiy.updator;
 
-import android.app.Service;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,7 +16,7 @@ import java.net.URL;
 public class P {
     private static String updateFileName = "update.apk";
 
-    public static String getUpdataInfo(String updateUrl) {
+    public static String getUpdataInfo(String updateUrl) throws IOException {
         InputStream is = null;
         HttpURLConnection urlCon = null;
         String resultData = "";
@@ -37,15 +35,9 @@ public class P {
             while ((inputLine = bufferReader.readLine()) != null) {
                 resultData += inputLine + "\n";
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
             if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                is.close();
             }
             if (urlCon != null) {
                 urlCon.disconnect();
@@ -91,8 +83,8 @@ public class P {
     }
 
     //支持断点续传
-    public static boolean downoadFile(boolean brokenReusme, String u, File f, DownloadCallback downloadCallback, Service service) {
-        int BLOCK_SIZE = 1024;
+    public static void downoadFile(boolean brokenReusme, String u, File f, DownloadCallback downloadCallback) throws IOException {
+        int BLOCK_SIZE = 8192;
         InputStream in = null;
         RandomAccessFile out = null;
         long totalLen = 0;
@@ -139,31 +131,24 @@ public class P {
                 downloadedLen += readLen;
                 if ((int) (downloadedLen * 100 / totalLen) - progress > 2) {//每百分之2才进一次
                     progress = (int) (downloadedLen * 100 / totalLen);
-                    downloadCallback.onProgress(service, (int) (downloadedLen * 100 / totalLen));
+                    if (downloadCallback.onProgress((int) (downloadedLen * 100 / totalLen))) {
+
+                    }
                 }
             }
-        } catch (IOException e) {
-            f.delete();
-            e.printStackTrace();
-            return false;
+            if (totalLen != f.length()) {//文件长度等于总长度
+                f.delete();
+                throw new IOException("file size exception!");
+            }
+
         } finally {
-            try {
-                if (in != null) {
-                    in.close();
-                }
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (in != null) {
+                in.close();
             }
-            downloadCallback.onDone(service);
+            if (out != null) {
+                out.close();
+            }
         }
-        if (totalLen == f.length()) {//文件长度等于总长度
-            return true;
-        } else {
-            f.delete();
-            return false;
-        }
+
     }
 }

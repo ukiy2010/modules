@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="啊还没领任务呢啊不要偷懒" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <com.ukiy.test.progresstextview.ProgressTextView
+            android:id="@+id/ptv"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:text="领取今日任务"
+            app:progress="50"
+            app:progressBackground="#742"
+            app:progressForeground="#007" />
+
+        <ImageView
+            android:id="@+id/iv"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignRight="@id/ptv"
+            android:layout_alignTop="@+id/ptv"
+            android:background="#999"
+            android:translationX="10dp"
+            android:translationY="-10dp" />
+
+    </RelativeLayout>
+
+</LinearLayout>

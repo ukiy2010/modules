@@ -1,15 +1,15 @@
 package com.ukiy.updator;
 
-import android.app.Service;
+import java.io.File;
 
 /**
  * Created by ukiy on 16/3/12.
  */
 public interface DownloadCallback {
-    void onProgress(Service service, int progress);
+    //返回true表示终止下载
+    boolean onProgress(int progress);
 
-    void onDone(Service service);
+    void onDone(File file);
 
-    //占位，暂无实现
-    void onFail(Service service);
+    void onFail();
 }

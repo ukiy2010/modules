@@ -7,14 +7,14 @@ import android.content.Context;
  */
 public interface CheckCallback {
     //可选更新
-    void onOptUpdate(Context context, UpdateInfo updateInfo, String cur_version);
+    void onOptUpdate(UpdateInfo result);
 
     //必须更新
-    void onMustUpdate(Context context, UpdateInfo updateInfo, String cur_version);
+    void onMustUpdate(UpdateInfo result);
 
     //已经是最新
-    void onAlreadyNewest(Context context, UpdateInfo updateInfo, String cur_version);
+    void onAlreadyNewest(UpdateInfo result);
 
-    //占位，暂无实现
-    void onFail(Context context);
+    //错误
+    void onFail(Exception e);
 }

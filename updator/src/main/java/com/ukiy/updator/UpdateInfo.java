@@ -1,5 +1,6 @@
 package com.ukiy.updator;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -18,18 +19,15 @@ public class UpdateInfo {
         this.url = url;
     }
 
-    public static UpdateInfo parse(String json) {
+    public static UpdateInfo parse(String json) throws JSONException {
         UpdateInfo ret = null;
-        try {
-            JSONObject jsonObject = new JSONObject(json);
-            JSONObject data = jsonObject.getJSONObject("data");
-            String new_version = data.getString("new_version");
-            String min_version = data.getString("min_version");
-            String change_log = data.getString("change_log");
-            String url = data.getString("url");
-            ret = new UpdateInfo(new_version, min_version, change_log, url);
-        } catch (Exception ignored) {
-        }
+        JSONObject jsonObject = new JSONObject(json);
+        JSONObject data = jsonObject.getJSONObject("data");
+        String new_version = data.getString("new_version");
+        String min_version = data.getString("min_version");
+        String change_log = data.getString("change_log");
+        String url = data.getString("url");
+        ret = new UpdateInfo(new_version, min_version, change_log, url);
         return ret;
     }
 }

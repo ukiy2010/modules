@@ -1,1 +1,1 @@
-include ':app', ':takeselectcrop', ':updator', ':fastemplet'
+include ':app', ':takeselectcrop', ':updator', ':fastemplet', ':progresstextview'

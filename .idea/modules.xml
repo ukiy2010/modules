@@ -4,7 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/fastemplet/fastemplet.iml" filepath="$PROJECT_DIR$/fastemplet/fastemplet.iml" />
-      <module fileurl="file://$PROJECT_DIR$/moudule.iml" filepath="$PROJECT_DIR$/moudule.iml" />
+      <module fileurl="file://$PROJECT_DIR$/modules.iml" filepath="$PROJECT_DIR$/modules.iml" />
+      <module fileurl="file://$PROJECT_DIR$/progresstextview/progresstextview.iml" filepath="$PROJECT_DIR$/progresstextview/progresstextview.iml" />
       <module fileurl="file://$PROJECT_DIR$/takeselectcrop/takeselectcrop.iml" filepath="$PROJECT_DIR$/takeselectcrop/takeselectcrop.iml" />
       <module fileurl="file://$PROJECT_DIR$/updator/updator.iml" filepath="$PROJECT_DIR$/updator/updator.iml" />
     </modules>

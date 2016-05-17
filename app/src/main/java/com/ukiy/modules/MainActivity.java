@@ -21,6 +21,9 @@ public class MainActivity extends BaseActivity {
             case R.id.btn_Updator:
                 startActivity(new Intent(MainActivity.this, UpdatorActivity.class));
                 break;
+            case R.id.btn_ProgressTextView:
+                startActivity(new Intent(MainActivity.this, ProgressTextActivity.class));
+                break;
             default:
                 break;
         }

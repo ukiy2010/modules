@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.ukiy.modules.ProgressTextActivity">
+
+    <com.ukiy.test.progresstextview.ProgressTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="我是一个兵，来自老百姓"
+        app:progress="1"
+        app:progressBackground="#009"
+        app:progressForeground="#900" />
+
+    <TextView
+        android:id="@+id/tvv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#050"
+        android:text="我是一个兵，来自老百姓" />
+
+</LinearLayout>

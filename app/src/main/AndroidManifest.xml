@@ -16,7 +16,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".TakeSelectCropActivity" />
-        <activity android:name=".UpdatorActivity"></activity>
+        <activity android:name=".UpdatorActivity" />
+        <activity android:name=".ScratchTextViewActivity" />
+        <activity android:name=".ProgressTextActivity"></activity>
     </application>
 
 </manifest>
